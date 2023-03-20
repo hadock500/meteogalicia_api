@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using meteogalicia_api.Exceptions;
+using Microsoft.AspNetCore.Mvc;
 
 namespace meteogalicia_api.Controllers;
 
@@ -18,10 +19,24 @@ public class ObservacionController : ControllerBase
     }
 
     [HttpGet("{id}", Name = "GetPrediction")]
-    public async Task<List<Prediction>> Get([FromRoute(Name = "id")] int municipalityId)
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<Prediction>))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+    public async Task<IActionResult> Get([FromRoute(Name = "id")] int municipalityId)
     {
-        var result = await _meteogaliciaApiService.GetPredictions(municipalityId);
+        try
+        {
+            var result = await _meteogaliciaApiService.GetPredictions(municipalityId);
 
-        return result;
+            return Ok(result);
+        }
+        catch (InstanceNotFoundException ex)
+        {
+            return NotFound(ex);
+        }
+        catch (IOException ex)
+        {
+            return StatusCode(503, ex);
+        }
     }
 }

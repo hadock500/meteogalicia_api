@@ -12,6 +12,7 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient();
+builder.Services.AddProblemDetails();
 
 /*
     AddTransient    -> Se crea una instancia nueva cada vez que es llamada.
@@ -27,6 +28,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseExceptionHandler("/Error");
+app.UseStatusCodePages();
 
 app.UseAuthorization();
 

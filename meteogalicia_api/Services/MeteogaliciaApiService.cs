@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using meteogalicia_api.Exceptions;
 using Newtonsoft.Json.Linq;
 
 namespace meteogalicia_api
@@ -77,7 +78,14 @@ namespace meteogalicia_api
                 ?? throw new IOException("No se ha podido convertir la respuesta de Meteogalicia a JSON");
 
             var threeDaysAfterToday = DateOnly.FromDateTime(DateTime.Now).AddDays(3);
-            var predictionsJson = json["predConcello"]!["listaPredDiaConcello"]!;
+
+            var municipalityJson = json["predConcello"]!;
+
+            if(!municipalityJson.HasValues) {
+                throw new InstanceNotFoundException("No se ha podido encontrar el municipio");
+            }
+
+            var predictionsJson = municipalityJson["listaPredDiaConcello"]!;
             foreach (var value in predictionsJson) {
                 var predictionDate = DateOnly.FromDateTime(DateTime.Parse(value["dataPredicion"]!.ToString()));
                 if(predictionDate.CompareTo(threeDaysAfterToday) < 0) {
